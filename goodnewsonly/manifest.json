@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
 
-  "name": "Positive News Filter",
+  "name": "Good News Only",
   "description": "Obstructs negative news headlines on news websites.",
   "version": "1.0",
 
