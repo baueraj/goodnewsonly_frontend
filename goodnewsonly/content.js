@@ -1,3 +1,5 @@
+console.log("Content script loaded");
+
 // Function to obstruct specified headlines
 function obstructHeadlines(headlines) {
     // Loop through each headline in the list
@@ -14,24 +16,37 @@ function obstructHeadlines(headlines) {
     });
 }
 
+console.log("Received message in content script");
+
 // Listener for messages from the background script
-chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    if (request.action == "processPage") {
-        // Fetch the current page's URL or content and send it to the backend
-        fetch('https://<your-heroku-app-name>.herokuapp.com/analyze', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({url: window.location.href}) // or send page content
-        })
-        .then(response => response.json())
-        .then(data => {
-            // Assuming the backend returns a list of headlines to obstruct
-            obstructHeadlines(data.headlines);
-        })
-        .catch(error => {
-            console.error("Error communicating with backend:", error);
-        });
-    }
+document.addEventListener("DOMContentLoaded", function() {
+    console.log("Idk");
+    chrome.runtime.onMessage.addListener(async function(request, sender, sendResponse) {
+        console.log("Message listener triggered, request action:", request.action);
+        if (request.action == "processPage") {
+            try {
+                console.log("Before sending fetch request");
+                const response = await fetch('https://good-news-only-a0460683d0b8.herokuapp.com/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({url: window.location.href}) // or send page content
+                });
+                console.log("After sending fetch request", response);
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log("Received headlines from backend:", data.headlines);
+                } else {
+                    console.log("Received an error from backend:", response.status, response.statusText);
+                }
+                obstructHeadlines(data.headlines);
+                sendResponse({result: "Headlines obstructed"});
+            } catch (error) {
+                console.error("Error communicating with backend:", error);
+                sendResponse({result: "Error"});
+            }
+        }
+        return true; // Keeps the message channel open until `sendResponse` is executed
+    });
 });
