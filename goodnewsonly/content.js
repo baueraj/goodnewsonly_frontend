@@ -21,6 +21,32 @@ function obstructHeadlines(headlines) {
     }
 }
 
+// Function to obstruct specified headlines (and links with headline-like text) and associated images
+function obstructHeadlinesAndImages(headlines) {
+    try {
+        // Loop through each headline in the list
+        headlines.forEach((headlineText) => {
+            // Find the headline on the page.
+            // This part may vary depending on how headlines are structured in HTML.
+            const headlineElements = document.querySelectorAll('h1, h2, h3, h4, h5, h6, p, span, a'); // added 'a'
+
+            headlineElements.forEach((element) => {
+                if (element.textContent.includes(headlineText)) {
+                    // Find the closest parent that is a container, assuming it's a 'div'
+                    // This can vary based on the website's HTML structure
+                    let parentContainer = element.closest('div');
+                    if (parentContainer) {
+                        parentContainer.style.display = 'none';  // hide the entire container
+                    }
+                }
+            });
+        });
+        console.log("Successfully obstructed headlines and their associated images and links");
+    } catch (error) {
+        console.error("Failed to obstruct headlines, images, and links:", error);
+    }
+}
+
 console.log("Received message in content script");
 
 // Function to show a white overlay
@@ -74,7 +100,8 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
                     console.log("After sending fetch request", response);
                     const data = await response.json();
                     console.log("Received headlines from backend:", data.headlines);
-                    obstructHeadlines(data.headlines);
+                    // obstructHeadlines(data.headlines);
+                    obstructHeadlinesAndImages(data.headlines)
                     sendResponse({result: "Headlines obstructed"});
                 } catch (error) {
                     console.error("Error communicating with backend:", error);
