@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Unsupported news domain</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 10px;
+            padding: 10px;
+        }
+        #message {
+            color: #333;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        #supportedDomains {
+            font-family: "Courier New", monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div id="message">This news domain isn't currently supported.</div>
+    <div id="supportedDomains"></div>
+    <script>
+        // Fetch and display the list of supported domains
+        fetch(chrome.runtime.getURL("assets/news_domains_supported.txt"))
+            .then(response => response.text())
+            .then(text => {
+                document.getElementById("supportedDomains").textContent = `Supported news domains: \n${text}`;
+            })
+            .catch(error => console.error("Error loading supported domains:", error));
+    </script>
+</body>
+</html>
