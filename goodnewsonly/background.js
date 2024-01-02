@@ -42,6 +42,8 @@ chrome.action.onClicked.addListener(function(tab) {
     let currentDomain = getRootDomain(tab.url);
     // let currentDomain = new URL(tab.url).hostname; // Use the entire hostname
 
+    // console.log(currentDomain); // Log/debug statement -- DELETE ME LATER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
     if (supportedDomains.includes(currentDomain)) {
         console.log("Inside listener: Sending message from background script");
         chrome.tabs.sendMessage(tab.id, {action: "processPage"}, function(response) {
@@ -55,6 +57,6 @@ chrome.action.onClicked.addListener(function(tab) {
         console.log("Inside listener: After sending message");
     } else {
         // Show popup if domain is not supported
-        chrome.action.setPopup({ popup: "popup/domain_not_supported.html" });
+        chrome.action.setPopup({ popup: "popup/news_domain_unsupported.html" });
     }
 });

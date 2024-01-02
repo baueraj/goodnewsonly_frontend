@@ -53,7 +53,7 @@ function obstructHeadlinesAndImages(headlines) {
     }
 }
 
-console.log("Received message in content script");
+console.log("Received message in content script"); // Why did I put this here????
 
 // Function to show a white overlay
 function showOverlay() {
@@ -77,7 +77,7 @@ function showOverlay() {
     text.style.marginBottom = "20px";
 
     let img = document.createElement('img');
-    img.src = "assets/draining_rotating_hourglass.gif";
+    img.src = chrome.runtime.getURL("assets/draining_rotating_hourglass.gif");
     img.style.width = "50px";
 
     overlay.appendChild(text);
