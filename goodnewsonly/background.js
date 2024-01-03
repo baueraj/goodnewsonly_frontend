@@ -42,8 +42,6 @@ chrome.action.onClicked.addListener(function(tab) {
     let currentDomain = getRootDomain(tab.url);
     // let currentDomain = new URL(tab.url).hostname; // Use the entire hostname
 
-    // console.log(currentDomain); // Log/debug statement -- DELETE ME LATER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
     if (supportedDomains.includes(currentDomain)) {
         console.log("Inside listener: Sending message from background script");
         chrome.tabs.sendMessage(tab.id, {action: "processPage"}, function(response) {

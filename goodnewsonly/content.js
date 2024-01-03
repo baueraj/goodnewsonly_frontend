@@ -78,7 +78,7 @@ function showOverlay() {
 
     let img = document.createElement('img');
     img.src = chrome.runtime.getURL("assets/draining_rotating_hourglass.gif");
-    img.style.width = "50px";
+    img.style.width = "200px";
 
     overlay.appendChild(text);
     overlay.appendChild(img);

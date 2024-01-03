@@ -3,6 +3,6 @@
 fetch(chrome.runtime.getURL("assets/news_domains_supported.txt"))
     .then(response => response.text())
     .then(text => {
-        document.getElementById("supportedDomains").textContent = `Supported news domains: \n${text}`;
+        document.getElementById("supportedDomains").textContent = `${text}`;
     })
     .catch(error => console.error("Error loading supported domains:", error));
