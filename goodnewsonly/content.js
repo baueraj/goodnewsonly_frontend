@@ -22,27 +22,44 @@ function obstructHeadlines(headlines) {
 }
 
 // Function to obstruct specified headlines (and links with headline-like text) and associated images
-function obstructHeadlinesAndImages(headlines) {
+function obstructHeadlinesAndImages(headlines, newsDomain) {
     try {
-        // Loop through each headline in the list
         headlines.forEach((headlineText) => {
-            // Find the headline on the page.
-            // This part may vary depending on how headlines are structured in HTML.
-            const headlineElements = document.querySelectorAll('h1, h2, h3, h4, h5, h6, p, span, a'); // added 'a'
+            let headlineElements;
+
+            // Domain-specific logic
+            if (newsDomain.includes('cnn.com') || newsDomain.includes('bbc.com') || newsDomain.includes('bbc.co.uk')) {
+                // Logic for CNN, BBC, etc.
+                headlineElements = document.querySelectorAll('h3.title a'); // Existing selector
+            } else if (newsDomain.includes('foxnews.com')) {
+                // Special logic for Fox News
+                headlineElements = document.querySelectorAll('article.article');
+            } else {
+                // Default logic (can be adjusted)
+                headlineElements = document.querySelectorAll('h1, h2, h3, h4, h5, h6, p, span, a');
+            }
 
             headlineElements.forEach((element) => {
                 if (element.textContent.includes(headlineText)) {
-                    // Find the closest parent that is a container, assuming it's a 'div'
-                    // This can vary based on the website's HTML structure
-                    let parentContainer = element.closest('div');
-                    if (parentContainer) {
-                        parentContainer.style.display = 'none';  // hide the entire container
-
-                        // Attempt to find and hide the associated image
-                        let associatedImage = parentContainer.previousElementSibling || parentContainer.nextElementSibling;
-                        if (associatedImage && associatedImage.tagName === 'PICTURE') {
-                            associatedImage.style.display = 'none';
+                    if (newsDomain.includes('cnn.com') || newsDomain.includes('bbc.com') || newsDomain.includes('bbc.co.uk')) {
+                        // Existing logic for CNN, BBC, etc.
+                        let headlineContainer = element.closest('.info');
+                        if (headlineContainer) {
+                            headlineContainer.style.display = 'none';
+                            let imageContainer = headlineContainer.previousElementSibling;
+                            if (imageContainer && imageContainer.classList.contains('m')) {
+                                imageContainer.style.display = 'none';
+                            }
                         }
+                    } else if (newsDomain.includes('foxnews.com')) {
+                        // Special handling for Fox News
+                        let articleContainer = element.closest('article.article');
+                        if (articleContainer) {
+                            articleContainer.style.display = 'none';
+                        }
+                    } else {
+                        // Default handling (can be adjusted)
+                        element.style.display = 'none';
                     }
                 }
             });
@@ -53,7 +70,7 @@ function obstructHeadlinesAndImages(headlines) {
     }
 }
 
-console.log("Received message in content script"); // Why did I put this here????
+// console.log("Received message in content script"); // Why did I put this here????
 
 // Function to show a white overlay
 function showOverlay() {
@@ -96,15 +113,9 @@ function removeOverlay() {
 // Listener for messages from the background script
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if (request.action == "processPage") {
-        // Show overlay
         showOverlay();
 
-        // Scroll to the bottom to load more content
-        window.scrollTo(0, document.body.scrollHeight);
-
-        // Wait for a few seconds for the new content to load
         setTimeout(async function() {
-            // Scroll back to the top
             window.scrollTo(0, 0);
 
             try {
@@ -114,24 +125,21 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({url: window.location.href}) // or send page content
+                    body: JSON.stringify({url: window.location.href})
                 });
-                console.log("After sending fetch request", response);
                 const data = await response.json();
                 console.log("Received headlines from backend:", data.headlines);
-                await obstructHeadlinesAndImages(data.headlines); // Ensure this is awaited
+                await obstructHeadlinesAndImages(data.headlines, request.domain); // Pass domain to the function
                 sendResponse({result: "Headlines obstructed"});
             } catch (error) {
                 console.error("Error communicating with backend:", error);
                 sendResponse({result: "Error"});
             } finally {
-                // Remove overlay after all async tasks are done
                 removeOverlay();
             }
 
-        }, 2000); // x seconds delay
+        }, 2000);  // TODO: Is this specification necessary anymore?!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-        // Return true to indicate that the response will be sent asynchronously
         return true;
     }
 });

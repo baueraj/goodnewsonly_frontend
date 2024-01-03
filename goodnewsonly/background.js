@@ -40,21 +40,18 @@ function getRootDomain(url) {
 
 chrome.action.onClicked.addListener(function(tab) {
     let currentDomain = getRootDomain(tab.url);
-    // let currentDomain = new URL(tab.url).hostname; // Use the entire hostname
 
     if (supportedDomains.includes(currentDomain)) {
         console.log("Inside listener: Sending message from background script");
-        chrome.tabs.sendMessage(tab.id, {action: "processPage"}, function(response) {
+        chrome.tabs.sendMessage(tab.id, {action: "processPage", domain: currentDomain}, function(response) {
             if (chrome.runtime.lastError) {
                 console.error("Error in sendMessage:", chrome.runtime.lastError.message);
-                return;  // Early return
+                return;
             }
-            // If no error:
             console.log("Response from content script:", response ? response.result : "No response");
         });
-        console.log("Inside listener: After sending message");
     } else {
-        // Show popup if domain is not supported
         chrome.action.setPopup({ popup: "popup/news_domain_unsupported.html" });
     }
 });
+
